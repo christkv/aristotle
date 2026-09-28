@@ -1,0 +1,268 @@
+{
+  "specVersion": "1",
+  "requestId": "example.ks3.linear-equations",
+  "title": "Build a sourced linear-equations lesson and dynamic practice family",
+  "targetSdk": "1",
+  "audience": {
+    "curriculum": "England; illustrative secondary maths, not a confirmed school assignment",
+    "level": "KS3 starting example; actual school year must be configured",
+    "languages": [
+      "en-GB",
+      "es-ES"
+    ]
+  },
+  "sources": [
+    {
+      "id": "algebra-fixture",
+      "version": "1",
+      "path": "linear-equations-source.md",
+      "sha256": "9fd8f4cd2b3885dfca2e25d83216d2ce1da7be6291ee87b39336eab305d27857",
+      "locations": [
+        {
+          "id": "equality",
+          "kind": "section",
+          "locator": "equality"
+        },
+        {
+          "id": "inverse-operations",
+          "kind": "section",
+          "locator": "inverse-operations"
+        },
+        {
+          "id": "practice-domain",
+          "kind": "section",
+          "locator": "practice-domain"
+        },
+        {
+          "id": "assessment",
+          "kind": "section",
+          "locator": "assessment"
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "maths.solve-linear-equation",
+      "description": "Solve a*x+b=c in the declared positive-integer coefficient domain, explain balanced operations, and verify by substitution.",
+      "sourceRefs": [
+        "algebra-fixture#equality",
+        "algebra-fixture#inverse-operations",
+        "algebra-fixture#practice-domain",
+        "algebra-fixture#assessment"
+      ]
+    }
+  ],
+  "moduleTargets": [
+    {
+      "id": "maths.linear-equations.content",
+      "version": "1.0.0",
+      "kind": "content",
+      "objectiveIds": [
+        "maths.solve-linear-equation"
+      ],
+      "dependencyIds": [],
+      "contentRequirements": [
+        "Explain equality and inverse operations with cited worked examples and a text alternative to a balance diagram.",
+        "Explain applying an operation to only one side; distinguish assisted from independent success.",
+        "Supply English and Spanish explanations with identical mathematics; assessed language stays configurable.",
+        "One mark for a supported rational satisfying the equation; do not infer method credit from an answer alone."
+      ]
+    },
+    {
+      "id": "maths.linear-equations.dynamic",
+      "version": "1.0.0",
+      "kind": "dynamic",
+      "objectiveIds": [
+        "maths.solve-linear-equation"
+      ],
+      "dependencyIds": [
+        "maths.linear-equations.content"
+      ],
+      "families": [
+        {
+          "id": "solve-positive-integer-linear",
+          "objectiveIds": [
+            "maths.solve-linear-equation"
+          ],
+          "modes": [
+            "learn",
+            "diagnostic",
+            "practice",
+            "review",
+            "mock-exam"
+          ],
+          "views": [
+            "text",
+            "diagram-2d"
+          ],
+          "generation": {
+            "parameterDomain": "Integers a in 1..9, b in 0..20, s in 0..12; c=a*s+b.",
+            "algorithm": "Sample (a,b,s) deterministically from the explicit seed and approved constraints, calculate c exactly, and freeze the instance.",
+            "constraints": [
+              "a must be nonzero; all values stay within the declared domain.",
+              "Negative coefficients and fractional solutions are unavailable in this family.",
+              "Return unavailable if constraints cannot be met within maxGenerationAttempts."
+            ],
+            "difficultyDimensions": [
+              "Coefficient one versus greater than one",
+              "Constant zero versus nonzero",
+              "Solution zero versus nonzero"
+            ],
+            "seeded": true
+          },
+          "assessment": {
+            "responseContract": "JSON string containing a scalar integer, finite decimal, or fraction of integers; surrounding whitespace allowed. No arbitrary expressions or variables. Declare locale handling in the response grammar.",
+            "checkerStrategy": "Parse an exact rational and independently check a*answer+b=c; do not just compare to the generator answer string.",
+            "rules": [
+              "One criterion: solution-value, maximum one mark.",
+              "Equivalent rationals are accepted if the prompt imposes no answer-form restriction.",
+              "A valid nonsatisfying answer is incorrect.",
+              "Invalid input, zero denominators, unsupported syntax and checker failure are unassessed with reasons.",
+              "Do not infer method credit, broad transfer or mastery from final-answer success.",
+              "The host tracks hints and solution reveals separately from correctness."
+            ],
+            "onUnsupported": "unassessed",
+            "cases": [
+              {
+                "id": "known-correct",
+                "parameters": {
+                  "a": 3,
+                  "b": 5,
+                  "s": 5
+                },
+                "response": "5",
+                "expected": "correct",
+                "reason": "3*5+5=20."
+              },
+              {
+                "id": "known-wrong",
+                "parameters": {
+                  "a": 3,
+                  "b": 5,
+                  "s": 5
+                },
+                "response": "4",
+                "expected": "incorrect",
+                "reason": "3*4+5=17, not 20."
+              },
+              {
+                "id": "equivalent-fraction",
+                "parameters": {
+                  "a": 3,
+                  "b": 5,
+                  "s": 5
+                },
+                "response": "10/2",
+                "expected": "correct",
+                "reason": "10/2 is exactly 5."
+              },
+              {
+                "id": "invalid-denominator",
+                "parameters": {
+                  "a": 3,
+                  "b": 5,
+                  "s": 5
+                },
+                "response": "1/0",
+                "expected": "unassessed",
+                "reason": "Undefined rational input requires correction."
+              },
+              {
+                "id": "zero-solution",
+                "parameters": {
+                  "a": 1,
+                  "b": 0,
+                  "s": 0
+                },
+                "response": "0",
+                "expected": "correct",
+                "reason": "x=0 is valid in this family."
+              },
+              {
+                "id": "boundary-case",
+                "parameters": {
+                  "a": 9,
+                  "b": 20,
+                  "s": 12
+                },
+                "response": "12",
+                "expected": "correct",
+                "reason": "9*12+20=128."
+              },
+              {
+                "id": "unsupported-expression",
+                "parameters": {
+                  "a": 3,
+                  "b": 5,
+                  "s": 5
+                },
+                "response": "sqrt(25)",
+                "expected": "unassessed",
+                "reason": "The grammar does not include symbolic functions; request a supported form."
+              }
+            ]
+          },
+          "interactionRequirements": [
+            "Balance diagram and prompt use the same public equation state, with a keyboard/text alternative.",
+            "Learn mode supports declared balanced subtract/divide actions and reset; preserve exact state and use text if a scene cannot represent it faithfully.",
+            "Mock-exam mode withholds solving controls, private solution data and live checking.",
+            "Voice uses the same state and semantic controls; confirm ambiguous spoken answers before assessment."
+          ],
+          "transferRequirement": "After explanation, test an unseen symbolic instance. Tag the family; broader word-problem transfer requires a separately validated family and is not established by this module."
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "r-source",
+      "statement": "Explanations resolve to the supplied sources.",
+      "verification": "Verify digests, anchors, sourceRef closure and semantic support."
+    },
+    {
+      "id": "r-generation",
+      "statement": "Fresh questions are valid, reproducible and need no model request at study time.",
+      "verification": "Exhaust all 2457 parameter tuples and test fixed-seed repeats and infeasible constraints."
+    },
+    {
+      "id": "r-checking",
+      "statement": "Answer correctness and uncertainty match the contract.",
+      "verification": "Run supplied cases and independent checker fixtures covering each applicable outcome."
+    },
+    {
+      "id": "r-visual",
+      "statement": "Diagram, prompt and checker agree; exam mode does not leak answers.",
+      "verification": "Validate scene data and inspect rendered captures when a compatible renderer exists."
+    },
+    {
+      "id": "r-learning",
+      "statement": "Learn, attempt independently, receive feedback and revisit the objective.",
+      "verification": "Run the student journey in the host when available; otherwise report that check pending."
+    },
+    {
+      "id": "r-package",
+      "statement": "Both packages obey the v1 manifest, dependency and runtime contracts.",
+      "verification": "Validate inventories, hashes, local schemas, named exports and available host import checks."
+    }
+  ],
+  "nonGoals": [
+    "Negative or fractional coefficients",
+    "Unknowns on both sides",
+    "Formal proof grading",
+    "Automatic GCSE alignment",
+    "Unrestricted network or filesystem access from modules"
+  ],
+  "limits": {
+    "maxRepairIterations": 3,
+    "maxBuildMinutes": 60,
+    "maxGenerationAttempts": 100
+  },
+  "deliveryRequirements": [
+    "Content and dynamic packages with exact source and dependency bindings",
+    "Bundled runtime, TypeScript source and reproducible build metadata",
+    "Response/public-state/private-state/action schemas and independent CheckerFixture arrays",
+    "Manifest-bound reports with evidence or pending status for every requirement",
+    "No learner records, provider credentials, undeclared dependencies or install scripts"
+  ]
+}

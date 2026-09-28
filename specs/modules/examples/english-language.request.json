@@ -1,0 +1,365 @@
+{
+  "specVersion": "1",
+  "requestId": "example.english-language",
+  "title": "Build bounded English grammar tests and vocabulary recall activities",
+  "targetSdk": "1",
+  "audience": {
+    "curriculum": "England; illustrative secondary study, not a confirmed school assignment",
+    "level": "Ages 12–14 starting example; school year and exam scope must be configured",
+    "languages": [
+      "en-GB"
+    ]
+  },
+  "sources": [
+    {
+      "id": "language-fixture",
+      "version": "1",
+      "path": "english-language-source.md",
+      "sha256": "cdd4ab37e095bb06bcc14cbeeb250b8799082c9ce5b120480d430625262afd65",
+      "locations": [
+        {
+          "id": "agreement",
+          "kind": "section",
+          "locator": "agreement"
+        },
+        {
+          "id": "sentence-bank",
+          "kind": "section",
+          "locator": "sentence-bank"
+        },
+        {
+          "id": "word-senses",
+          "kind": "section",
+          "locator": "word-senses"
+        },
+        {
+          "id": "teaching",
+          "kind": "section",
+          "locator": "teaching"
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "english.subject-verb-agreement",
+      "description": "Choose is/are to agree with the grammatical subject in the reviewed sentence bank.",
+      "sourceRefs": [
+        "language-fixture#agreement",
+        "language-fixture#sentence-bank",
+        "language-fixture#teaching"
+      ]
+    },
+    {
+      "id": "english.vocabulary-recall",
+      "description": "Recall a listed scientific term for the supplied sense and context; do not infer spelling, production or science mastery.",
+      "sourceRefs": [
+        "language-fixture#word-senses",
+        "language-fixture#teaching"
+      ]
+    }
+  ],
+  "moduleTargets": [
+    {
+      "id": "english-language.content",
+      "version": "1.0.0",
+      "kind": "content",
+      "objectiveIds": [
+        "english.subject-verb-agreement",
+        "english.vocabulary-recall"
+      ],
+      "dependencyIds": [],
+      "contentRequirements": [
+        "Explain agreement using head nouns and contrasting reviewed examples; preserve standard-written-English scope.",
+        "Provide three sense records and six reviewed prompts exactly as supplied; preserve IDs and distinguish definition/context prompts.",
+        "Describe one-mark binary rubrics agreement and recall-term, variant normalisation and unsupported cases.",
+        "Keep expansion suggestions separate from exam lists; explain that this finite bank does not establish broad transfer."
+      ]
+    },
+    {
+      "id": "english-language.dynamic",
+      "version": "1.0.0",
+      "kind": "dynamic",
+      "objectiveIds": [
+        "english.subject-verb-agreement",
+        "english.vocabulary-recall"
+      ],
+      "dependencyIds": [
+        "english-language.content"
+      ],
+      "families": [
+        {
+          "id": "present-be-agreement",
+          "objectiveIds": [
+            "english.subject-verb-agreement"
+          ],
+          "modes": [
+            "learn",
+            "diagnostic",
+            "practice",
+            "review",
+            "mock-exam"
+          ],
+          "views": [
+            "text"
+          ],
+          "generation": {
+            "parameterDomain": "Six supplied subject IDs multiplied by two predicate IDs = 12 sentences.",
+            "algorithm": "Select compatible subject/predicate entries with a versioned seeded PRNG; preserve exact text and private head/number metadata.",
+            "constraints": [
+              "Use only the supplied bank and is/are alternatives; no invented sentence fragments.",
+              "Return unavailable for unsupported tense/register/structure or scope.",
+              "Keep subject head and correct form private until authorised help/feedback."
+            ],
+            "difficultyDimensions": [
+              "Simple head versus intervening phrase",
+              "Matching versus conflicting number of nearby nouns"
+            ],
+            "seeded": true
+          },
+          "assessment": {
+            "responseContract": "JSON string containing is or are after trimming and ASCII case folding. Other words or full sentences are unassessed.",
+            "checkerStrategy": "Use reviewed subject number to select the required form; never use the nearest noun heuristic.",
+            "rules": [
+              "One binary criterion agreement, one mark.",
+              "Supported alternative is/are with wrong agreement is incorrect; malformed or unsupported input is unassessed.",
+              "Do not award production or general grammar mastery from cloze alone."
+            ],
+            "onUnsupported": "unassessed",
+            "cases": [
+              {
+                "id": "singular-head",
+                "parameters": {
+                  "subjectId": "s-box",
+                  "predicateId": "p-desk"
+                },
+                "response": "is",
+                "expected": "correct",
+                "reason": "Head box is singular despite nearby plural pencils."
+              },
+              {
+                "id": "nearest-noun-error",
+                "parameters": {
+                  "subjectId": "s-key",
+                  "predicateId": "p-desk"
+                },
+                "response": "are",
+                "expected": "incorrect",
+                "reason": "Head key is singular, not books."
+              },
+              {
+                "id": "plural-head",
+                "parameters": {
+                  "subjectId": "s-keys",
+                  "predicateId": "p-window"
+                },
+                "response": "are",
+                "expected": "correct",
+                "reason": "Head keys is plural despite nearby singular book."
+              },
+              {
+                "id": "normalisation",
+                "parameters": {
+                  "subjectId": "s-lamps",
+                  "predicateId": "p-desk"
+                },
+                "response": " ARE ",
+                "expected": "correct",
+                "reason": "Declared whitespace/case normalisation preserves are."
+              },
+              {
+                "id": "whole-sentence",
+                "parameters": {
+                  "subjectId": "s-lamp",
+                  "predicateId": "p-window"
+                },
+                "response": "The lamp is near the window.",
+                "expected": "unassessed",
+                "reason": "This response contract requests only the missing word."
+              },
+              {
+                "id": "unsupported-form",
+                "parameters": {
+                  "subjectId": "s-boxes",
+                  "predicateId": "p-desk"
+                },
+                "response": "were",
+                "expected": "unassessed",
+                "reason": "Only is/are is supported; prompt for the requested format."
+              }
+            ]
+          },
+          "interactionRequirements": [
+            "Learn mode can reveal the head and explain why nearby nouns do not control agreement; record help.",
+            "In mock mode show the same sentence with a blank and unranked is/are choices; no grammatical highlighting or live feedback.",
+            "Use native text initially; advanced token editing requires a declared custom view, never an invented native scene."
+          ],
+          "transferRequirement": "Hold back different subject/predicate combinations and retain structure IDs. Label exhausted/reused variants. Broader editing and writing transfer require another validated family."
+        },
+        {
+          "id": "scientific-term-recall",
+          "objectiveIds": [
+            "english.vocabulary-recall"
+          ],
+          "modes": [
+            "learn",
+            "diagnostic",
+            "practice",
+            "review",
+            "mock-exam"
+          ],
+          "views": [
+            "text"
+          ],
+          "generation": {
+            "parameterDomain": "Three supplied sense IDs multiplied by two context IDs d/c = six prompts.",
+            "algorithm": "Choose a sense/context pair from the frozen approved list using a seeded PRNG; prepend the exact recall instruction. The independent prompt does not display the answer list.",
+            "constraints": [
+              "Only supplied senses and reviewed prompts; generated extra words never enter exam scope.",
+              "No runtime synonym invention or unrestricted definition grading.",
+              "Keep sense ID and expected term in private state: student-facing state exposes only the recall instruction and context prompt; hide the word list during independent recall."
+            ],
+            "difficultyDimensions": [
+              "Direct definition versus contextual cue"
+            ],
+            "seeded": true
+          },
+          "assessment": {
+            "responseContract": "JSON string from mass, volume, density after trimming and ASCII case folding. Other text is unassessed.",
+            "checkerStrategy": "Match the supported listed response to the private reviewed sense key; preserve separate objective/sense/context evidence.",
+            "rules": [
+              "One binary criterion recall-term, one mark.",
+              "Another listed term is incorrect; other text is unassessed for this bounded task.",
+              "No spelling, productive-use or science-calculation evidence is awarded by this family."
+            ],
+            "onUnsupported": "unassessed",
+            "cases": [
+              {
+                "id": "density-recall",
+                "parameters": {
+                  "senseId": "density.ratio",
+                  "contextId": "d"
+                },
+                "response": "density",
+                "expected": "correct",
+                "reason": "Correct supplied term for mass divided by volume."
+              },
+              {
+                "id": "wrong-listed-term",
+                "parameters": {
+                  "senseId": "density.ratio",
+                  "contextId": "c"
+                },
+                "response": "mass",
+                "expected": "incorrect",
+                "reason": "Mass is a supported listed response but the requested quantity is density."
+              },
+              {
+                "id": "volume-context",
+                "parameters": {
+                  "senseId": "volume.space",
+                  "contextId": "c"
+                },
+                "response": " Volume ",
+                "expected": "correct",
+                "reason": "Whitespace/case normalisation; occupied space in cm³ is volume."
+              },
+              {
+                "id": "mass-definition",
+                "parameters": {
+                  "senseId": "mass.quantity",
+                  "contextId": "d"
+                },
+                "response": "mass",
+                "expected": "correct",
+                "reason": "The supplied quantity expressed in grams is mass."
+              },
+              {
+                "id": "outside-list",
+                "parameters": {
+                  "senseId": "volume.space",
+                  "contextId": "d"
+                },
+                "response": "space",
+                "expected": "unassessed",
+                "reason": "Prompt explicitly asks for a listed term; do not classify unsupported wording as a misconception."
+              },
+              {
+                "id": "empty-input",
+                "parameters": {
+                  "senseId": "mass.quantity",
+                  "contextId": "c"
+                },
+                "response": "",
+                "expected": "unassessed",
+                "reason": "Request a response; no demonstrated wrong concept."
+              }
+            ]
+          },
+          "interactionRequirements": [
+            "Learn mode can reveal the definition and other context; record assistance.",
+            "Learn mode may show the three-word list. In diagnostic/practice/review/mock independent attempts hide it; any authorised reveal outside mock mode counts as help. Mock mode blocks list reveals.",
+            "Use typed answers for this reference; later confirmed voice recall must not be treated as spelling evidence."
+          ],
+          "transferRequirement": "Use a held-back context if available and label repeats. Productive vocabulary requires an independently assessed new context; any optional expansion remains outside the active exam."
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "r-source",
+      "statement": "Every objective, explanation and rule resolves to the approved source.",
+      "verification": "Verify source digests/anchors, objective/dependency closure and semantic support."
+    },
+    {
+      "id": "r-package",
+      "statement": "Packages follow the supplied v1 contract and operate offline.",
+      "verification": "Validate manifests, local schemas, runtime exports, reproducibility and all available host gates; report unavailable host checks pending."
+    },
+    {
+      "id": "r-mode",
+      "statement": "Help and private answer fields cannot leak into a mock exam.",
+      "verification": "Check public state, rendered content, actions and voice controls in each mode."
+    },
+    {
+      "id": "r-learning",
+      "statement": "Follow help with an independent item and retain family/context identity.",
+      "verification": "Exercise the host journey when available; verify reuse labels, assistance tracking and scope boundaries."
+    },
+    {
+      "id": "r-grammar-bank",
+      "statement": "All 12 sentence combinations preserve grammatical meaning and unique agreement.",
+      "verification": "Exhaust the bank; compare accepted forms to independently reviewed source keys; run supplied edge cases."
+    },
+    {
+      "id": "r-vocabulary-bank",
+      "statement": "All six sense/context prompts have a unique answer within the explicit list.",
+      "verification": "Review every prompt and wrong listed alternative; retain stable sense/context identities in fixtures and host evidence."
+    },
+    {
+      "id": "r-finite-bank",
+      "statement": "The host recognises reused prompts and distinguishes recall from productive vocabulary.",
+      "verification": "Verify stable family/structural metadata, exhaustion behaviour and separate evidence categories; mark host checks pending until implemented."
+    }
+  ],
+  "nonGoals": [
+    "Full grammar coverage, unrestricted writing or automatic essay grading",
+    "A general synonym checker or spelling/pronunciation assessment",
+    "Automatic promotion of expansion words into an exam",
+    "Changing the scientific curriculum from vocabulary recognition alone"
+  ],
+  "limits": {
+    "maxRepairIterations": 3,
+    "maxBuildMinutes": 90,
+    "maxGenerationAttempts": 100
+  },
+  "deliveryRequirements": [
+    "Content and dynamic packages with exact source and dependency bindings",
+    "Bundled runtime, TypeScript source and reproducible build metadata",
+    "Response/public-state/private-state/action schemas and independent CheckerFixture arrays",
+    "Manifest-bound reports with evidence or pending status for every requirement",
+    "No learner records, provider credentials, undeclared dependencies or install scripts",
+    "Use the supplied science/language design rules; do not invent scene kinds or claim unimplemented host tests passed."
+  ]
+}

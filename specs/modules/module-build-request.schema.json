@@ -1,0 +1,543 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:aristotle:module-build-request:1",
+  "title": "Aristotle external-agent module build request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "specVersion": {
+      "const": "1"
+    },
+    "requestId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9.-]*$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "targetSdk": {
+      "const": "1"
+    },
+    "audience": {
+      "$ref": "#/$defs/audience"
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "minItems": 1
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/objective"
+      },
+      "minItems": 1
+    },
+    "moduleTargets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/target"
+      },
+      "minItems": 1
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*$"
+          },
+          "statement": {
+            "type": "string",
+            "minLength": 1
+          },
+          "verification": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "id",
+          "statement",
+          "verification"
+        ]
+      },
+      "minItems": 1
+    },
+    "nonGoals": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxRepairIterations": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxBuildMinutes": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxGenerationAttempts": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxModelSpend": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "currency",
+            "amount"
+          ],
+          "properties": {
+            "currency": {
+              "type": "string",
+              "pattern": "^[A-Z]{3}$"
+            },
+            "amount": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        }
+      },
+      "required": [
+        "maxRepairIterations",
+        "maxBuildMinutes",
+        "maxGenerationAttempts"
+      ]
+    },
+    "deliveryRequirements": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "minItems": 1
+    }
+  },
+  "required": [
+    "specVersion",
+    "requestId",
+    "title",
+    "targetSdk",
+    "audience",
+    "sources",
+    "objectives",
+    "moduleTargets",
+    "requirements",
+    "nonGoals",
+    "limits",
+    "deliveryRequirements"
+  ],
+  "$defs": {
+    "audience": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "curriculum": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level": {
+          "type": "string",
+          "minLength": 1
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "curriculum",
+        "level",
+        "languages"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9.-]*$"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "path": {
+          "type": "string",
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*[\\\\:])[A-Za-z0-9_./-]+$"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "locations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9.-]*$"
+              },
+              "kind": {
+                "enum": [
+                  "section",
+                  "pdf-page"
+                ]
+              },
+              "locator": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "id",
+              "kind",
+              "locator"
+            ]
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "path",
+        "sha256",
+        "locations"
+      ]
+    },
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9.-]*$"
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceRefs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "sourceRefs"
+      ]
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9.-]*$"
+        },
+        "parameters": {
+          "type": "object"
+        },
+        "response": {},
+        "expected": {
+          "enum": [
+            "correct",
+            "partial",
+            "incorrect",
+            "unassessed"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "parameters",
+        "response",
+        "expected",
+        "reason"
+      ]
+    },
+    "family": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9.-]*$"
+        },
+        "objectiveIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*$"
+          },
+          "minItems": 1
+        },
+        "modes": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "learn",
+              "diagnostic",
+              "practice",
+              "review",
+              "mock-exam"
+            ]
+          },
+          "minItems": 1
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "text",
+              "image",
+              "data-table",
+              "diagram-2d",
+              "graph-2d",
+              "scene-3d",
+              "simulation",
+              "custom-view"
+            ]
+          },
+          "minItems": 1
+        },
+        "generation": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "parameterDomain": {
+              "type": "string",
+              "minLength": 1
+            },
+            "algorithm": {
+              "type": "string",
+              "minLength": 1
+            },
+            "constraints": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            "difficultyDimensions": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            "seeded": {
+              "const": true
+            }
+          },
+          "required": [
+            "parameterDomain",
+            "algorithm",
+            "constraints",
+            "difficultyDimensions",
+            "seeded"
+          ]
+        },
+        "assessment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "responseContract": {
+              "type": "string",
+              "minLength": 1
+            },
+            "checkerStrategy": {
+              "type": "string",
+              "minLength": 1
+            },
+            "rules": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "minLength": 1
+              },
+              "minItems": 1
+            },
+            "onUnsupported": {
+              "const": "unassessed"
+            },
+            "cases": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/case"
+              },
+              "minItems": 3
+            }
+          },
+          "required": [
+            "responseContract",
+            "checkerStrategy",
+            "rules",
+            "onUnsupported",
+            "cases"
+          ]
+        },
+        "interactionRequirements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "transferRequirement": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "id",
+        "objectiveIds",
+        "modes",
+        "views",
+        "generation",
+        "assessment",
+        "interactionRequirements",
+        "transferRequirement"
+      ]
+    },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9.-]*$"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "kind": {
+          "enum": [
+            "content",
+            "dynamic"
+          ]
+        },
+        "objectiveIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*$"
+          },
+          "minItems": 1
+        },
+        "dependencyIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9.-]*$"
+          },
+          "minItems": 0
+        },
+        "contentRequirements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 1
+        },
+        "families": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/family"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "kind",
+        "objectiveIds",
+        "dependencyIds"
+      ],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "content"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "contentRequirements"
+            ],
+            "not": {
+              "required": [
+                "families"
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "dynamic"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "families"
+            ],
+            "properties": {
+              "dependencyIds": {
+                "minItems": 1
+              }
+            },
+            "not": {
+              "required": [
+                "contentRequirements"
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}

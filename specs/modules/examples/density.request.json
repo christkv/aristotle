@@ -1,0 +1,324 @@
+{
+  "specVersion": "1",
+  "requestId": "example.density",
+  "title": "Build a dynamic science lesson: density, quantities and a constant-density model",
+  "targetSdk": "1",
+  "audience": {
+    "curriculum": "England; illustrative secondary study, not a confirmed school assignment",
+    "level": "Ages 12–14 starting example; school year and exam scope must be configured",
+    "languages": [
+      "en-GB"
+    ]
+  },
+  "sources": [
+    {
+      "id": "density-fixture",
+      "version": "1",
+      "path": "density-source.md",
+      "sha256": "a44f0158ce52680bf3f7c941a2a939917f480e5b4725b4c42005db876f37273c",
+      "locations": [
+        {
+          "id": "relationship",
+          "kind": "section",
+          "locator": "relationship"
+        },
+        {
+          "id": "model",
+          "kind": "section",
+          "locator": "model"
+        },
+        {
+          "id": "domain",
+          "kind": "section",
+          "locator": "domain"
+        },
+        {
+          "id": "marking",
+          "kind": "section",
+          "locator": "marking"
+        }
+      ]
+    }
+  ],
+  "objectives": [
+    {
+      "id": "science.calculate-density",
+      "description": "Calculate density from exact mass and volume in the declared units; distinguish the idealised model from measurement.",
+      "sourceRefs": [
+        "density-fixture#relationship",
+        "density-fixture#model",
+        "density-fixture#domain",
+        "density-fixture#marking"
+      ]
+    }
+  ],
+  "moduleTargets": [
+    {
+      "id": "density.content",
+      "version": "1.0.0",
+      "kind": "content",
+      "objectiveIds": [
+        "science.calculate-density"
+      ],
+      "dependencyIds": [],
+      "contentRequirements": [
+        "Explain density and the mass/volume relationship with cited worked examples and labelled units.",
+        "Describe the idealised constant-density model, constructed data and all excluded phenomena; do not name real substances.",
+        "Define two binary criteria density-value and density-unit, one mark each, including unsupported-unit handling.",
+        "Explain why varying volume at fixed density changes mass; this explanation does not itself establish student causal understanding."
+      ]
+    },
+    {
+      "id": "density.dynamic",
+      "version": "1.0.0",
+      "kind": "dynamic",
+      "objectiveIds": [
+        "science.calculate-density"
+      ],
+      "dependencyIds": [
+        "density.content"
+      ],
+      "families": [
+        {
+          "id": "density-from-mass-volume",
+          "objectiveIds": [
+            "science.calculate-density"
+          ],
+          "modes": [
+            "learn",
+            "diagnostic",
+            "practice",
+            "review",
+            "mock-exam"
+          ],
+          "views": [
+            "text",
+            "data-table",
+            "graph-2d",
+            "simulation"
+          ],
+          "generation": {
+            "parameterDomain": "Integers d in 1..8; v in {5,10,15,20,25,30,35,40,45,50}; m=d*v, in g and cm³.",
+            "algorithm": "Use a declared seeded PRNG to choose a valid (d,v); calculate m exactly. Freeze prompt, parameters and two-criterion rubric.",
+            "constraints": [
+              "Exactly 80 possible parameter pairs; all v are positive.",
+              "Only density-from-mass-and-volume questions; no unknown mass/volume variants or unit conversions.",
+              "Return unavailable for unsupported units, objectives or unsatisfiable constraints within the generation limit."
+            ],
+            "difficultyDimensions": [
+              "Magnitude of the exact mass and volume",
+              "Density one versus greater than one"
+            ],
+            "seeded": true
+          },
+          "assessment": {
+            "responseContract": "JSON object with exactly value:string and unit:string. Exact signed integer/dot-decimal/fraction grammar; no scientific notation or functions. Use source marking rules.",
+            "checkerStrategy": "Parse an exact rational and check value*v=m from the frozen question; check the unit separately. No string-only numeric comparison.",
+            "rules": [
+              "Two required binary criteria: density-value and density-unit, one mark each.",
+              "Accept g/cm3 and g/cm³ with surrounding whitespace ignored; recognised wrong units are g, cm3, cm³, g/cm2, g/cm².",
+              "For a recognised unit, grade value independently; do not infer method credit.",
+              "For an unknown/unsupported unit, leave both value and unit unassessed because interpreting the physical value would require an unsupported conversion. For malformed value with a recognised unit, preserve any known unit result.",
+              "Correctness, assistance and scientific explanation evidence remain separate."
+            ],
+            "onUnsupported": "unassessed",
+            "cases": [
+              {
+                "id": "correct",
+                "parameters": {
+                  "d": 3,
+                  "v": 20
+                },
+                "response": {
+                  "value": "3",
+                  "unit": "g/cm3"
+                },
+                "expected": "correct",
+                "reason": "60/20=3 with the supported density unit."
+              },
+              {
+                "id": "exact-equivalent",
+                "parameters": {
+                  "d": 3,
+                  "v": 20
+                },
+                "response": {
+                  "value": "6/2",
+                  "unit": "g/cm³"
+                },
+                "expected": "correct",
+                "reason": "The rational value is exactly 3."
+              },
+              {
+                "id": "wrong-unit",
+                "parameters": {
+                  "d": 3,
+                  "v": 20
+                },
+                "response": {
+                  "value": "3",
+                  "unit": "g"
+                },
+                "expected": "partial",
+                "reason": "Only density-value is met."
+              },
+              {
+                "id": "wrong-value",
+                "parameters": {
+                  "d": 3,
+                  "v": 20
+                },
+                "response": {
+                  "value": "4",
+                  "unit": "g/cm3"
+                },
+                "expected": "partial",
+                "reason": "Only density-unit is met."
+              },
+              {
+                "id": "both-wrong",
+                "parameters": {
+                  "d": 3,
+                  "v": 20
+                },
+                "response": {
+                  "value": "4",
+                  "unit": "g"
+                },
+                "expected": "incorrect",
+                "reason": "Neither required criterion is met."
+              },
+              {
+                "id": "invalid-value",
+                "parameters": {
+                  "d": 3,
+                  "v": 20
+                },
+                "response": {
+                  "value": "1/0",
+                  "unit": "g/cm3"
+                },
+                "expected": "unassessed",
+                "reason": "Undefined rational; preserve the met unit criterion."
+              },
+              {
+                "id": "unsupported-conversion",
+                "parameters": {
+                  "d": 3,
+                  "v": 20
+                },
+                "response": {
+                  "value": "3000",
+                  "unit": "kg/m3"
+                },
+                "expected": "unassessed",
+                "reason": "Unit conversion is outside this family; do not call the physically equivalent converted answer simply wrong."
+              },
+              {
+                "id": "negative-answer",
+                "parameters": {
+                  "d": 3,
+                  "v": 20
+                },
+                "response": {
+                  "value": "-3",
+                  "unit": "g/cm3"
+                },
+                "expected": "partial",
+                "reason": "Parseable negative answer fails density-value; density-unit is met."
+              },
+              {
+                "id": "minimum",
+                "parameters": {
+                  "d": 1,
+                  "v": 5
+                },
+                "response": {
+                  "value": "1",
+                  "unit": "g/cm³"
+                },
+                "expected": "correct",
+                "reason": "Exact boundary case m=d*v."
+              },
+              {
+                "id": "maximum",
+                "parameters": {
+                  "d": 8,
+                  "v": 50
+                },
+                "response": {
+                  "value": "8",
+                  "unit": "g/cm³"
+                },
+                "expected": "correct",
+                "reason": "Exact boundary case m=d*v."
+              }
+            ]
+          },
+          "interactionRequirements": [
+            "In learn mode show a data-table of v=5..50 by 5 and m=d*v, plus line-graph x=volume (cm³), y=mass (g), slope=d, intercept=0; both derive from exact state.",
+            "Learn mode offers select-volume and reset via declared actions. At fixed d update m; changed question givens require a new host instance before assessment. No frame-rate-based physics is needed.",
+            "Mock-exam mode shows only givens and the answer form; no table of extra samples, model controls, solution graph or private d field.",
+            "Provide accessible table/text, keyboard controls and equivalent voice actions. Verify rows/cells, labels and limits before rendering."
+          ],
+          "transferRequirement": "After exploration use an unseen pair where possible, then a separately supported interpretation task. Calculation fluency does not prove causal reasoning, experimental skill or coverage of all science."
+        }
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "id": "r-source",
+      "statement": "Every objective, explanation and rule resolves to the approved source.",
+      "verification": "Verify source digests/anchors, objective/dependency closure and semantic support."
+    },
+    {
+      "id": "r-package",
+      "statement": "Packages follow the supplied v1 contract and operate offline.",
+      "verification": "Validate manifests, local schemas, runtime exports, reproducibility and all available host gates; report unavailable host checks pending."
+    },
+    {
+      "id": "r-mode",
+      "statement": "Help and private answer fields cannot leak into a mock exam.",
+      "verification": "Check public state, rendered content, actions and voice controls in each mode."
+    },
+    {
+      "id": "r-learning",
+      "statement": "Follow help with an independent item and retain family/context identity.",
+      "verification": "Exercise the host journey when available; verify reuse labels, assistance tracking and scope boundaries."
+    },
+    {
+      "id": "r-science-domain",
+      "statement": "The 80 parameter pairs satisfy the stated physical relationship and scope.",
+      "verification": "Exhaust the 80 pairs; independently verify m/v=d, positive volumes, seed repeats and infeasible constraints."
+    },
+    {
+      "id": "r-science-checking",
+      "statement": "Units, exact arithmetic and unresolved interpretations have distinct outcomes.",
+      "verification": "Run every supplied case, malformed-response fixtures and independent criterion-level expectations."
+    },
+    {
+      "id": "r-science-model",
+      "statement": "The table, graph and controls implement constant density faithfully.",
+      "verification": "Check zero intercept, graph/table values, fixed d and changed-instance behaviour; inspect real rendering/accessibility when a host exists."
+    }
+  ],
+  "nonGoals": [
+    "Real material properties or real experimental observations",
+    "Conversions, uncertainty, significant figures and general physics simulation",
+    "Autonomous model grading inside module code"
+  ],
+  "limits": {
+    "maxRepairIterations": 3,
+    "maxBuildMinutes": 90,
+    "maxGenerationAttempts": 100
+  },
+  "deliveryRequirements": [
+    "Content and dynamic packages with exact source and dependency bindings",
+    "Bundled runtime, TypeScript source and reproducible build metadata",
+    "Response/public-state/private-state/action schemas and independent CheckerFixture arrays",
+    "Manifest-bound reports with evidence or pending status for every requirement",
+    "No learner records, provider credentials, undeclared dependencies or install scripts",
+    "Use the supplied science/language design rules; do not invent scene kinds or claim unimplemented host tests passed."
+  ]
+}
